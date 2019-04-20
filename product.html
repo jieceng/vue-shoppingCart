@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>商品中心</title>
+    <link rel="stylesheet" href="css/style.css">
+	<script src="https://cdn.jsdelivr.net/npm/vue"></script>
+</head>
+<body>
+
+<div id="app" v-clock>
+
+    <h1 align="center">商品中心</h1>
+    
+    <table>
+        <tr>
+            <th width="15%">
+                缩图
+            </th>
+            <th>商品</th>
+            <th width="15%">单价（元）</th>
+            <th width="20%">操作</th>
+        </tr>
+        <tbody>
+            <tr v-for="item in oldData">
+                <td>
+                    <img :src="item.imgurl" width="60" height="60">
+                </td>
+                <td>{{ item.name }}</td>
+                <td><b>￥{{ item.price }}</b></td>
+                <td><button @click="joinCar(item)">加入购物车</button></td>
+            </tr>
+			<tr v-if="oldData.length==0">
+				<td colspan="4" style="text-align:center">当前暂时没有商品</td>
+			</tr>
+        </tbody>
+    </table>
+    
+    <table>
+        <tr>
+            <td class="text-right">
+                <a href="buycart.html" class="btn">我的购物车<em class="button">{{ shopSum }}</em></a>
+            </td>
+        </tr>
+    </table>
+
+</div>
+<script>
+	//读取本地数据
+	var localData = localStorage.getItem('localData');
+	//原生数据
+	var oldData = [
+		{id:1,name:'皮带',price:100,imgurl:'images/pidai.png',number:1},
+		{id:2,name:'入耳式金属耳机手机',price:120,imgurl:'images/eji.png',number:1},
+		{id:3,name:'机械革命笔记本',price:7000,imgurl:'images/bijiben.png',number:1},
+		{id:4,name:'国产水蜜桃',price:30,imgurl:'images/shuimitao.png',number:1},
+		{id:5,name:'小天鹅洗衣机',price:1200,imgurl:'images/xiyiji.png',number:1}
+	];
+	// 创建一个Vue的实例app
+	var app = new Vue({
+		el: '#app',
+		data: {
+			shopData: localData?JSON.parse(localData):[]
+		},
+		methods: {
+			//处理加入购物车
+			joinCar(data){
+				//购物车中有没有这个条数据
+				var flag = this.shopData.some(item => item.id==data.id);
+				if(!flag){//没有
+					this.shopData.push(data);
+				}else{
+					//购物车中有数据
+					this.shopData = this.shopData.map(item => {
+						if(item.id==data.id){
+							item.number++;
+						}
+						return item;
+					})
+				}
+				//将数据添加到本地
+				var str = JSON.stringify(this.shopData);
+				localStorage.setItem('localData',str);
+			}
+		},
+		computed: {
+			//计算购物的总件数
+			shopSum(){
+				return this.shopData.reduce((a,b) => a+b.number,0)
+			}
+		}
+	})
+</script>
+</body>
+
+</html>
